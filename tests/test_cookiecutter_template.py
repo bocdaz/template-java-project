@@ -5,6 +5,7 @@ import subprocess
 from cookiecutter.utils import rmtree
 import pytest
 
+
 @contextmanager
 def inside_dir(dirpath):
     """
@@ -58,3 +59,14 @@ def test_bake_with_defaults(cookies):
         assert result.project_path.is_dir()
         assert result.exit_code == 0
         assert result.exception is None
+
+
+def test_bake_and_run_tests(cookies):
+    with bake_in_temp_dir(cookies) as result:
+        assert result.project_path.is_dir()
+        project_path = str(result.project_path)
+        assert run_inside_dir("mvn test", project_path) == 0
+        assert (
+            run_inside_dir("mvn --batch-mode --update-snapshots verify", project_path)
+            == 0
+        )
